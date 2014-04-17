@@ -1,4 +1,4 @@
-require 'logger'
+# require 'logger'
 class ParseFacebook
   USERS = []
   # LOGGER = Logger.new('xxx.log')
