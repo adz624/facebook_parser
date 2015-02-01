@@ -2,14 +2,21 @@ require 'fb_graph'
 require 'colorize'
 require './parse_facebook.rb'
 
+def prompt(*args)
+    print(*args)
+    gets
+end
+
 # token 常過期
-ACCESS_TOKEN = 'CAACEdEose0cBAF38WACX0UWxNyDqmIknxkbUTfL2N9RnItoBEQggIWQZCMoRLkq2MLsZADZCKn109gZAU3gxcnzLBkPTm6SgAvZBg6CZAv3PqbyoUgRZCjv9xkvJMxmdD3JCjBXMfq8bzrf3ir30ypYDoovFJrMm8mlxg5hdCZC8AcSJSbNwS6NdJ3uZAMrUa25rMZCrgsjG6heQZDZD'
+ACCESS_TOKEN = prompt('Access Token? (https://developers.facebook.com/tools/explorer/145634995501895/?method=GET&path=me%3Ffields%3Did%2Cname&version=v2.2)'.red)
+FAN_PAGE = prompt('Facebook 粉絲團名稱 (非網址)'.blue)
+
 
 # 設定Timeout 時間
 FbGraph.http_config do |http_client|
   http_client.connect_timeout = 120
 end
-fg = FbGraph::Page.fetch('THSRforsale', access_token: ACCESS_TOKEN) 
+fg = FbGraph::Page.fetch(FAN_PAGE, access_token: ACCESS_TOKEN) 
 
 
 posts = fg.posts
