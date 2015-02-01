@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require 'fb_graph'
 require 'colorize'
 require './parse_facebook.rb'
