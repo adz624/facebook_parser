@@ -9,8 +9,21 @@ def prompt(*args)
 end
 
 # token 常過期
-ACCESS_TOKEN = prompt('Access Token? (https://developers.facebook.com/tools/explorer/145634995501895/?method=GET&path=me%3Ffields%3Did%2Cname&version=v2.2)'.red)
+cache_file_path = '/tmp/.cache_token'
+cache_token = if  File.exist?(cache_file_path) then File.read(cache_file_path) else '' end
+
+puts "請輸入 Access Token，請至網址：https://developers.facebook.com/tools/explorer/145634995501895/?method=GET&path=me%3Ffields%3Did%2Cname&version=v2.2)"
+if cache_token.gsub("\n", "") == ''
+  ACCESS_TOKEN = prompt('Access Token?'.red)
+else
+  token = prompt("Access Token? 劉空白使用上次 Token: #{cache_token}".red)
+  ACCESS_TOKEN = if token.gsub("\n", "") == '' then cache_token else token end
+end
 FAN_PAGE = prompt('Facebook 粉絲團名稱 (非網址)'.blue)
+
+File.open(cache_file_path, 'w') { |file| file.write(ACCESS_TOKEN) }  
+
+puts "開始搜集：#{FAN_PAGE} TOKEN: #{ACCESS_TOKEN}".yellow
 
 
 # 設定Timeout 時間
@@ -29,12 +42,15 @@ loop do
       # 不抓沒有回覆的文章
       next if post.comments.blank?
       post_count += 1
-      puts "#{post.raw_attributes['message'].at(0..10).gsub(/\n/, '')} ...".red
+      if post.raw_attributes['message'].nil?
+        puts "No message ...".red
+      else
+        puts "#{post.raw_attributes['message'].at(0..10).gsub(/\n/, '')} ...".red
+      end
       puts "Post Created Time: #{post.created_time.strftime('%Y-%m-%d %H:%M:%S')}".yellow
       # puts "Comments Count: #{post.comments.count}".blue
       ParseFacebook.parase_comments(post.comments)
       ParseFacebook.get_likes(post.likes)
-      puts '----------------------------------------'
     end
     
     posts = posts.next
@@ -42,6 +58,9 @@ loop do
   rescue HTTPClient::ConnectTimeoutError
     puts '########## Timeout ##########'.red
     retry
+  rescue
+    puts "Exceptions Stopped"
+    break
   end
 end
 
